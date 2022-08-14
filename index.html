@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hornbach Bingo</title>
+    <script src="index.js" defer></script>
+</head>
+
+<body>
+    <table id="bingoTable"></table>
+    
+    <p>SessionID: <span style="display: none;" id="sessionID"></span></p>
+
+    <form action="api/session.php" method="get">
+        <label style="display: none; color: red;" id="errorBox"></label><br>
+        <label for="name"></label>
+        <input type="text" name="" id="name">
+        <input type="submit" value="Make session">
+    </form>
+
+
+    <button onclick="startSession()">Make session</button>
+    <button onclick="clearCookies()">Clear cookies</button>
+</body>
+
+</html>

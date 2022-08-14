@@ -1,0 +1,9 @@
+# do not share database credentials
+api/db.php
+
+# do not include api tests
+api/requests.rest
+
+# do not include generation files
+names
+products
