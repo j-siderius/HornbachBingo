@@ -1,8 +1,8 @@
 <?php
 
 include('db.php');
-include('names.php');
 include('timer.php');
+include('error.php');
 
 if (isset($_GET['new'])) {
     newSession();
@@ -13,34 +13,40 @@ if (isset($_GET['new'])) {
     exit();
 }
 
-# TODO: check if new&get can be combined into one url
-
 function newSession()
 {
     // check if no session is present yet
     if (isset($_COOKIE['sessionID'])) {
-        http_response_code(400);
-        echo "Session already started";
+        sendErrorMessage(400, "Session already started");
         exit();
     }
 
-    // generate a random name
-    // TODO: check if we can use user-generated names
-    global $NAMES;
-    $i = array_rand($NAMES, 1);
-    $name = $NAMES[$i];
+    // get and check the session name
+    $name = htmlspecialchars($_GET['new']);
+    if ($name == "") {
+        sendErrorMessage(400, "Empty session name");
+        exit();
+    }
 
-    $id = md5($name);
-    $time = time();
+    // generate the random join pin
+    $pin = "";
+    for ($i = 0; $i < 4; $i++) {
+        $pin .= rand(0, 9);
+    }
+
+    // generating the sessionID
+    $hash = $name . $pin . time();
+    $id = md5($hash);
 
     // insert the session into db
     global $conn;
-    $query = $conn->prepare("INSERT INTO `sessions` (`session_id`, `session_name`, `session_running`, `session_starttime`) VALUES (:sesid, :sname, :srun, :sst)");
+    $query = $conn->prepare("INSERT INTO `sessions` (`session_id`, `session_name`, `session_pin`, `session_running`, `session_starttime`) VALUES (:sesid, :sname, :spin, :srun, :sst)");
     $query->execute([
         "sesid" => $id,
         "sname" => $name,
+        "spin" => $pin,
         "srun" => 1,
-        "sst" => $time
+        "sst" => time()
     ]);
 
     // get the random products
@@ -63,13 +69,13 @@ function newSession()
     ]);
 
     // respond with json
-    $response = array(
+    $json = array(
         "sessionID" => $id,
         "sessionName" => $name
     );
     setcookie("sessionID", $id, time() + 86400, "/");
     header('Content-Type: application/json');
-    echo json_encode($response);
+    echo json_encode($json);
     exit();
 }
 
@@ -96,6 +102,7 @@ function getSession()
                 $json = array(
                     "sessionID" => $response['session_id'],
                     "sessionName" => $response['session_name'],
+                    "sessionPin" => $response['session_pin'],
                     "sessionStartTime" => $response['session_starttime'],
                     "sessionRunning" => $response['session_running'],
                     "sessionProducts" => $response['session_products'],
@@ -105,20 +112,17 @@ function getSession()
                 header('Content-Type: application/json');
                 echo json_encode($json);
             } else {
-                http_response_code(400);
-                echo "Session has expired";
+                sendErrorMessage(400, "Session has expired");
                 exit();
             }
         } catch (Exception $e) {
             // catch errors and return
-            http_response_code(400);
-            echo "No session with this sessionID";
+            sendErrorMessage(400, "No session with this sessionID");
             exit();
         }
     } else {
         // return error when no sessionID token is present
-        http_response_code(400);
-        echo "No sessionID token";
+        sendErrorMessage(400, "No sessionID token");
         exit();
     }
 }

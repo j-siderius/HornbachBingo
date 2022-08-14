@@ -7,3 +7,6 @@ api/requests.rest
 # do not include generation files
 names
 products
+
+# do not include testing files
+test.php
