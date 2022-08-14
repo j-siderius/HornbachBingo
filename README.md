@@ -11,13 +11,13 @@ I looove the Hornbach :)
 ## Backend / API
 All controlling is done using the PHP-based API with the following endpoints:
 
-### Controller
+### Session
 - *api/session.php?new={name}*
   - {name} = session name
-  - returns 201 + {sessionID, sessionName}
+  - returns 200 + {sessionID, sessionName}
   - returns 400 when there is already a sessionID saved
 - *api/session.php?get*
-  - returns 200 + {sessionID, sesssionName, sessionRunning, sessionStartTime, sessionProducts, sessionFoundProducts, sessionHints}
+  - returns 200 + {sessionID, sesssionName, sessionPin, sessionRunning, sessionStartTime, sessionProducts, sessionFoundProducts, sessionHints}
   - returns 404 when the saved sessionID does not exist in the DB
   - returns 400 when there is no sessionID saved
 - *api/session.php?join={name}&pin={pin}*
@@ -26,6 +26,8 @@ All controlling is done using the PHP-based API with the following endpoints:
   - returns 200 + {sessionID, sessionName}
   - returns 404 when the {name} does not exist in the DB
   - returns 401 when the {pin} does not match the pin in the DB
+- *api/session.php?leaderboard*
+  - returns 200 + [{sessionName, sessionStartTime, sessionRunning, sessionFoundProducts, sessionHints}]
 
 ### Product
 - *api/product.php?id={id}*

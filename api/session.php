@@ -8,6 +8,8 @@ if (isset($_GET['new'])) {
     newSession();
 } elseif (isset($_GET['get'])) {
     getSession();
+} elseif (isset($_GET['join'])) {
+    joinSession();
 } else {
     http_response_code(404);
     exit();
@@ -73,6 +75,7 @@ function newSession()
         "sessionID" => $id,
         "sessionName" => $name
     );
+    // set the sessionID cookie
     setcookie("sessionID", $id, time() + 86400, "/");
     header('Content-Type: application/json');
     echo json_encode($json);
@@ -93,8 +96,6 @@ function getSession()
                 "sesid" => $id
             ]);
             $response = $query->fetch(PDO::FETCH_ASSOC);
-
-            // TODO: leave out time checking
 
             // check if the session is still valid
             if (checkGameTime($id)) {
@@ -123,6 +124,65 @@ function getSession()
     } else {
         // return error when no sessionID token is present
         sendErrorMessage(400, "No sessionID token");
+        exit();
+    }
+}
+
+function joinSession()
+{
+    // mitigate brute-force by time-out of 250ms (crude implementation)
+    usleep(250000);
+
+    // check if no session is present yet
+    if (isset($_COOKIE['sessionID'])) {
+        sendErrorMessage(400, "Session already started");
+        exit();
+    }
+
+    // get and check the session name
+    $name = htmlspecialchars($_GET['join']);
+    if ($name == "") {
+        sendErrorMessage(400, "Empty session name");
+        exit();
+    }
+
+    // get and check the session pin
+    $pin = htmlspecialchars($_GET['pin']);
+    if ($pin == "") {
+        sendErrorMessage(400, "Empty pin");
+        exit();
+    }
+
+    try {
+        // fetch the session variables
+        global $conn;
+        $query = $conn->prepare("SELECT `session_id`, `session_pin` FROM `sessions` WHERE `session_name`=:sname");
+        $query->execute([
+            "sname" => $name
+        ]);
+        $response = $query->fetch(PDO::FETCH_ASSOC);
+        $id = $response['session_id'];
+        $checkPin = $response['session_pin'];
+
+        // test if the correct pin is passed
+        if ($pin == $checkPin) {
+            // pin is matching, join session
+            // respond with json
+            $json = array(
+                "sessionID" => $id,
+                "sessionName" => $name
+            );
+            // set the sessionID cookie
+            setcookie("sessionID", $id, time() + 86400, "/");
+            header('Content-Type: application/json');
+            echo json_encode($json);
+            exit();
+        } else {
+            sendErrorMessage(401, "Session pin is not correct");
+            exit();
+        }
+    } catch (Exception $e) {
+        sendErrorMessage(404, "Session does not exist");
         exit();
     }
 }
