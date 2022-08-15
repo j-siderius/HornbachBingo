@@ -11,7 +11,7 @@ if (isset($_GET['new'])) {
 } elseif (isset($_GET['join'])) {
     joinSession();
 } else {
-    http_response_code(404);
+    sendErrorMessage(404, "Endpoint not found");
     exit();
 }
 
@@ -87,6 +87,7 @@ function getSession()
     // check if session token is present
     if (isset($_COOKIE['sessionID'])) {
 
+        // try fetching the session
         try {
             // try to fetch the session with given ID
             $id = htmlspecialchars($_COOKIE['sessionID']);
@@ -153,6 +154,7 @@ function joinSession()
         exit();
     }
 
+    // try joining the session
     try {
         // fetch the session variables
         global $conn;
