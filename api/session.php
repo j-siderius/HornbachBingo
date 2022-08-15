@@ -195,7 +195,7 @@ function getLeaderboard()
 {
     // fetch the sessions
     global $conn;
-    $query = $conn->prepare("SELECT `session_name`,`session_running`,`session_starttime`,`session_found`,`session_hints` FROM `sessions`");
+    $query = $conn->prepare("SELECT `session_name`,`session_running`,`session_starttime`,`session_found`,`session_hints` FROM `sessions` LIMIT 100");
     $query->execute([]);
     $response = $query->fetchAll(PDO::FETCH_ASSOC);
 
