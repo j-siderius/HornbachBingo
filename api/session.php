@@ -10,6 +10,8 @@ if (isset($_GET['new'])) {
     getSession();
 } elseif (isset($_GET['join'])) {
     joinSession();
+} elseif (isset($_GET['leaderboard'])) {
+    getLeaderboard();
 } else {
     sendErrorMessage(404, "Endpoint not found");
     exit();
@@ -187,4 +189,48 @@ function joinSession()
         sendErrorMessage(404, "Session does not exist");
         exit();
     }
+}
+
+function getLeaderboard()
+{
+    // fetch the sessions
+    global $conn;
+    $query = $conn->prepare("SELECT `session_name`,`session_running`,`session_starttime`,`session_found`,`session_hints` FROM `sessions`");
+    $query->execute([]);
+    $response = $query->fetchAll(PDO::FETCH_ASSOC);
+
+    // make storage arrays for the sessions
+    $runningSessions = array();
+    $stoppedSessions = array();
+
+    // loop through all sessions
+    foreach ($response as $session) {
+        $fprod = count(explode(",", $session['session_found']));
+        $hprod = count(explode(",", $session['session_hints']));
+        $running = $session['session_running'];
+
+        $sesinfo = array(
+            "sessionName" => $session['session_name'],
+            "sessionStartTime" => $session['session_starttime'],
+            "sessionFoundProducts" => $fprod,
+            "sessionHints" => $hprod
+        );
+
+        // push the session to the corresponding array
+        if ($running) {
+            array_push($runningSessions, $sesinfo);
+        } else {
+            array_push($stoppedSessions, $sesinfo);
+        }
+    }
+
+    // respond with json
+    $json = array(
+        "runningSessions" => $runningSessions,
+        "stoppedSessions" => $stoppedSessions
+    );
+    // set the sessionID cookie
+    header('Content-Type: application/json');
+    echo json_encode($json);
+    exit();
 }

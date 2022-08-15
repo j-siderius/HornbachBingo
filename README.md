@@ -27,7 +27,7 @@ All controlling is done using the PHP-based API with the following endpoints:
   - returns 404 when the {name} does not exist in the DB
   - returns 401 when the {pin} does not match the pin in the DB
 - *api/session.php?leaderboard*
-  - returns 200 + [{sessionName, sessionStartTime, sessionRunning, sessionFoundProducts, sessionHints}]
+  - returns 200 + [runningSessions/stoppedSessions[{sessionName, sessionStartTime, sessionFoundProducts, sessionHints}]]
 
 ### Product
 - *api/product.php?id={id}*
