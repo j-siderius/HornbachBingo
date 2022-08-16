@@ -169,30 +169,38 @@ function joinSession()
         $query->execute([
             "sname" => $name
         ]);
-        $response = $query->fetch(PDO::FETCH_ASSOC);
-        $id = $response['session_id'];
-        $checkPin = $response['session_pin'];
 
-        // test if the correct pin is passed
-        if ($pin == $checkPin) {
-            // pin is matching, join session
-            // respond with json
-            $json = array(
-                "sessionID" => $id,
-                "sessionName" => $name
-            );
-            // set the sessionID cookie
-            setcookie("sessionID", $id, [
-                'expires' => time() + 86400,
-                'path' => '/',
-                'secure' => true,
-                'samesite' => 'None'
-            ]);
-            header('Content-Type: application/json');
-            echo json_encode($json);
-            exit();
+        // check if session exists
+        if ($query->rowCount() > 0) {
+
+            $response = $query->fetch(PDO::FETCH_ASSOC);
+            $id = $response['session_id'];
+            $checkPin = $response['session_pin'];
+
+            // test if the correct pin is passed
+            if ($pin == $checkPin) {
+                // pin is matching, join session
+                // respond with json
+                $json = array(
+                    "sessionID" => $id,
+                    "sessionName" => $name
+                );
+                // set the sessionID cookie
+                setcookie("sessionID", $id, [
+                    'expires' => time() + 86400,
+                    'path' => '/',
+                    'secure' => true,
+                    'samesite' => 'None'
+                ]);
+                header('Content-Type: application/json');
+                echo json_encode($json);
+                exit();
+            } else {
+                sendErrorMessage(401, "Session pin is not correct");
+                exit();
+            }
         } else {
-            sendErrorMessage(401, "Session pin is not correct");
+            sendErrorMessage(404, "Session does not exist");
             exit();
         }
     } catch (Exception $e) {
