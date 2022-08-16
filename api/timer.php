@@ -16,33 +16,39 @@ function checkGameTime($id)
         $query->execute([
             "sesid" => $id
         ]);
-        $response = $query->fetch(PDO::FETCH_ASSOC);
-        $running = $response['session_running'];
-        $startTime = $response['session_starttime'];
 
-        if (!$running) {
-            return false;
-        }
+        // check if session exists
+        if ($query->rowCount() > 0) {
 
-        // check if session is still allowed to run
-        $gameDuration = 15 * 60; // MINUTES * SECONDS (unixtime is in seconds)
-        $timeRemainder = ($startTime + $gameDuration) - time();
-        if ($timeRemainder <= 0) {
-            // set the run variable to false if time has expired, no more actions can be taken
-            $query = $conn->prepare("UPDATE `sessions` SET `session_running`=:srun WHERE `session_id`=:sesid");
-            $query->execute([
-                "sesid" => $id,
-                "srun" => 0
-            ]);
-            // delete the session cookie
-            // setcookie("sessionID", "", time() - 3600, "/");
-            return false;
+            $response = $query->fetch(PDO::FETCH_ASSOC);
+
+            $running = $response['session_running'];
+            $startTime = $response['session_starttime'];
+
+            if (!$running) {
+                return false;
+            }
+
+            // check if session is still allowed to run
+            $gameDuration = 15 * 60; // MINUTES * SECONDS (unixtime is in seconds)
+            $timeRemainder = ($startTime + $gameDuration) - time();
+            if ($timeRemainder <= 0) {
+                // set the run variable to false if time has expired, no more actions can be taken
+                $query = $conn->prepare("UPDATE `sessions` SET `session_running`=:srun WHERE `session_id`=:sesid");
+                $query->execute([
+                    "sesid" => $id,
+                    "srun" => 0
+                ]);
+                // delete the session cookie
+                // setcookie("sessionID", "", time() - 3600, "/");
+                return false;
+            } else {
+                return true;
+            }
         } else {
-            return true;
+            false;
         }
     } catch (Exception $e) {
-        http_response_code(400);
-        echo "Session not found";
-        exit();
+        false;
     }
 }
