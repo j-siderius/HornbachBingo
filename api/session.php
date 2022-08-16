@@ -79,7 +79,7 @@ function newSession()
     );
     // set the sessionID cookie
     setcookie("sessionID", $id, [
-        'expires' => time() + 86400,
+        'expires' => time() + (15*60),
         'path' => '/',
         'secure' => true,
         'samesite' => 'None'
@@ -187,7 +187,7 @@ function joinSession()
                 );
                 // set the sessionID cookie
                 setcookie("sessionID", $id, [
-                    'expires' => time() + 86400,
+                    'expires' => time() + (15*60),
                     'path' => '/',
                     'secure' => true,
                     'samesite' => 'None'
@@ -211,9 +211,18 @@ function joinSession()
 
 function getLeaderboard()
 {
-    // fetch the sessions
+    // check all running sessions on time
     global $conn;
-    $query = $conn->prepare("SELECT `session_name`,`session_running`,`session_starttime`,`session_found`,`session_hints` FROM `sessions` LIMIT 100");
+    $query = $conn->prepare("SELECT `session_id` FROM `sessions` WHERE `session_running`=1");
+    $query->execute([]);
+    $response = $query->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($response as $session) {
+        checkGameTime($session['session_id']);
+    }
+
+    // fetch the sessions
+    $query = $conn->prepare("SELECT `session_name`,`session_running`,`session_starttime`,`session_found`,`session_hints` FROM `sessions` ORDER BY `session_starttime` DESC LIMIT 100");
     $query->execute([]);
     $response = $query->fetchAll(PDO::FETCH_ASSOC);
 

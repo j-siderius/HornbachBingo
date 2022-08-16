@@ -1,6 +1,10 @@
 // always try to fill the leaderboard
 fillLeaderboard();
 
+// update the remaining time and check periodically if leaderboard has changed
+setInterval(updateLeaderboard, 1000);
+setInterval(fillLeaderboard, 15000);
+
 // add the collapsing behaviour to the menu
 let coll = document.getElementById('collapsible');
 coll.addEventListener("click", function () {
@@ -19,6 +23,9 @@ document.getElementById('joinTeamForm').addEventListener('submit', joinTeam)
 // ---------------------------------------------------- \\
 
 async function fillLeaderboard() {
+    // clear the table (if one exists)
+    document.getElementById('leaderboardTable').innerHTML = "";
+
     // call the api
     let api_url = 'api/session.php?leaderboard'
     let response = await fetch(api_url);
@@ -37,33 +44,68 @@ async function fillLeaderboard() {
     // get the table element
     let table = document.getElementById('leaderboardTable');
 
-    // add all running sessions to table
+    // add header row to table
     let breakRow = table.insertRow();
-    breakRow.classList.add("running");
-    breakRow.insertCell().innerHTML = "Running sessions";
+    breakRow.classList.add("header");
+    breakRow.insertCell(0).innerHTML = "Running teams";
+    breakRow.insertCell(1).innerHTML = "Products found";
+    breakRow.insertCell(2).innerHTML = "Hints used";
+    breakRow.insertCell(3).innerHTML = "Time left";
+
+    // add all running sessions to table
     running.forEach(session => {
         let row = table.insertRow();
+        row.classList.add("running")
 
         // fill the cells with session info
         row.insertCell(0).innerHTML = session.sessionName;
         row.insertCell(1).innerHTML = session.sessionFoundProducts;
         row.insertCell(2).innerHTML = session.sessionHints;
-        row.insertCell(3).innerHTML = session.sessionStartTime;
+
+        // calculate the remaining time
+        let finishTime = 1 * session.sessionStartTime + (15*60);
+        let currentTime = (Math.floor(Date.now() / 1000));
+        let remainingTime = finishTime - currentTime;
+        row.insertCell(3).innerHTML = remainingTime;
     });
 
     // add all stopped sessions to table
     breakRow = table.insertRow();
-    breakRow.classList.add("stopped");
-    breakRow.insertCell().innerHTML = "Finished sessions";
+    breakRow.classList.add("header");
+    breakRow.insertCell(0).innerHTML = "Finished teams";
+    breakRow.insertCell(1).innerHTML = "Products found";
+    breakRow.insertCell(2).innerHTML = "Hints used";
+    breakRow.insertCell(3).innerHTML = "Score";
+
+    // add all stopped sessions to table
     stopped.forEach(session => {
         let row = table.insertRow();
+        row.classList.add("stopped");
 
         // fill the cells with session info
         row.insertCell(0).innerHTML = session.sessionName;
         row.insertCell(1).innerHTML = session.sessionFoundProducts;
         row.insertCell(2).innerHTML = session.sessionHints;
-        row.insertCell(3).innerHTML = session.sessionStartTime;
+        row.insertCell(3).innerHTML = session.sessionFoundProducts - (0.5 * session.sessionHints);
+        // TODO: change score calculation?
     });
+}
+
+function updateLeaderboard() {
+    // grab all rows with time
+    let rows = document.getElementsByClassName("running");
+
+    // loop through rows and update the time
+    for (let row of rows) {
+        let currentTime = row.children[3].innerHTML;
+        let remainingTime = 1 * currentTime - 1;
+        if (remainingTime > 0) {
+            row.children[3].innerHTML = remainingTime;
+        } else {
+            // if one row is out of time, reload the page
+            location.reload();
+        }
+    };
 }
 
 async function createTeam(event) {
@@ -94,7 +136,7 @@ async function createTeam(event) {
 async function joinTeam(event) {
     // prevent submitting and redirecting page
     event.preventDefault();
-    
+
     // fetch the team name and pin from the form, encode and create api url
     let teamname = encodeURI(document.getElementById('joinTeam-name').value);
     let teampin = document.getElementById('joinTeam-pin').value;

@@ -35,7 +35,7 @@ function checkGameTime($id)
                 "srun" => 0
             ]);
             // delete the session cookie
-            setcookie("sessionID", "", time() - 3600, "/");
+            // setcookie("sessionID", "", time() - 3600, "/");
             return false;
         } else {
             return true;
