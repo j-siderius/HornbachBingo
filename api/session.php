@@ -79,7 +79,7 @@ function newSession()
     );
     // set the sessionID cookie
     setcookie("sessionID", $id, [
-        'expires' => time() + (15*60),
+        'expires' => time() + (15 * 60),
         'path' => '/',
         'secure' => true,
         'samesite' => 'None'
@@ -187,7 +187,7 @@ function joinSession()
                 );
                 // set the sessionID cookie
                 setcookie("sessionID", $id, [
-                    'expires' => time() + (15*60),
+                    'expires' => time() + (15 * 60),
                     'path' => '/',
                     'secure' => true,
                     'samesite' => 'None'
@@ -232,8 +232,18 @@ function getLeaderboard()
 
     // loop through all sessions
     foreach ($response as $session) {
-        $fprod = count(explode(",", $session['session_found']));
-        $hprod = count(explode(",", $session['session_hints']));
+        // check if we actually have products (count bug)
+        if ($session['session_found'] != NULL) {
+            $fprod = count(explode(",", $session['session_found']));
+        } else {
+            $fprod = 0;
+        }
+        if ($session['session_hints'] != NULL) {
+            $hprod = count(explode(",", $session['session_hints']));
+        } else {
+            $hprod = 0;
+        }
+
         $running = $session['session_running'];
 
         $sesinfo = array(
