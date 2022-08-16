@@ -6,24 +6,56 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hornbach Bingo</title>
-    <script src="index.js" defer></script>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="styles/style.css">
+    <script src="scripts/index.js" defer></script>
 </head>
 
 <body>
-    <table id="bingoTable"></table>
-    
-    <p>SessionID: <span style="display: none;" id="sessionID"></span></p>
+    <!-- TODO: replace with banner image -->
+    <h2>Hornbach Bingo</h2>
 
-    <form action="api/session.php" method="get">
-        <label style="display: none; color: red;" id="errorBox"></label><br>
-        <label for="name"></label>
-        <input type="text" name="" id="name">
-        <input type="submit" value="Make session">
-    </form>
+    <button type="button" id="collapsible">Menu</button>
+    <!-- TODO: change 'display' to 'none' -->
+    <div id="collapsible-content" style="display: block;">
+        <hr>
 
+        <h4><a href="guide.html">Game guide</a></h4>
 
-    <button onclick="startSession()">Make session</button>
-    <button onclick="clearCookies()">Clear cookies</button>
+        <h4>Make a team</h4>
+        <form id="makeTeamForm">
+            <label for="teamname">Team name</label>
+            <input type="text" name="teamname" id="makeTeam-name" required>
+            <br>
+            <button type="submit">Make team</button>
+        </form>
+
+        <h4>Join a team</h4>
+        <form id="joinTeamForm">
+            <label for="teamname">Team name</label>
+            <input type="text" name="teamname" id="joinTeam-name" required>
+            <br>
+            <label for="teampin">Pin</label>
+            <input type="text" name="teampin" id="joinTeam-pin" pattern="[0-9]*" inputmode="numeric" maxlength="4"
+                placeholder="0000" required>
+            <br>
+            <button type="submit">Join team</button>
+        </form>
+
+        <h4><a href="game.html">Go to team</a></h4>
+
+        <hr>
+    </div>
+
+    <table id="leaderboardTable">
+        <tr>
+            <th>Team</th>
+            <th>Products found</th>
+            <th>Hints used</th>
+            <th>Start time</th>
+        </tr>
+    </table>
+
 </body>
 
 </html>
