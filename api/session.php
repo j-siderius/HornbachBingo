@@ -54,7 +54,7 @@ function newSession()
     ]);
 
     // get the random products
-    $query = $conn->prepare("SELECT `id` FROM `products` ORDER BY RAND() LIMIT 9");
+    $query = $conn->prepare("SELECT `id` FROM `products` ORDER BY RAND() LIMIT 25");
     $query->execute();
     $products = $query->fetchAll(PDO::FETCH_ASSOC);
 
