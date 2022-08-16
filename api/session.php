@@ -78,7 +78,12 @@ function newSession()
         "sessionName" => $name
     );
     // set the sessionID cookie
-    setcookie("sessionID", $id, time() + 86400, "/");
+    setcookie("sessionID", $id, [
+        'expires' => time() + 86400,
+        'path' => '/',
+        'secure' => true,
+        'samesite' => 'None'
+    ]);
     header('Content-Type: application/json');
     echo json_encode($json);
     exit();
@@ -177,7 +182,12 @@ function joinSession()
                 "sessionName" => $name
             );
             // set the sessionID cookie
-            setcookie("sessionID", $id, time() + 86400, "/");
+            setcookie("sessionID", $id, [
+                'expires' => time() + 86400,
+                'path' => '/',
+                'secure' => true,
+                'samesite' => 'None'
+            ]);
             header('Content-Type: application/json');
             echo json_encode($json);
             exit();
