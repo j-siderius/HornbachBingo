@@ -16,6 +16,9 @@ coll.addEventListener("click", function () {
     }
 });
 
+// add the year to the footer
+document.getElementById("footerYear").innerHTML = new Date().getFullYear();
+
 // add the form event listeners
 document.getElementById('makeTeamForm').addEventListener('submit', createTeam)
 document.getElementById('joinTeamForm').addEventListener('submit', joinTeam)
@@ -63,7 +66,7 @@ async function fillLeaderboard() {
         row.insertCell(2).innerHTML = session.sessionHints;
 
         // calculate the remaining time
-        let finishTime = 1 * session.sessionStartTime + (15*60);
+        let finishTime = 1 * session.sessionStartTime + (15 * 60);
         let currentTime = (Math.floor(Date.now() / 1000));
         let remainingTime = finishTime - currentTime;
         row.insertCell(3).innerHTML = remainingTime;
