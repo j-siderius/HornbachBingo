@@ -19,29 +19,33 @@
     <!-- TODO: change 'display' to 'none' -->
     <div id="collapsible-content" style="display: block;">
         <hr>
+        <div id="makeJoinTeam" style="display: block;">
+            <h4>Make a team</h4>
+            <form id="makeTeamForm">
+                <label for="teamname">Team name</label>
+                <input type="text" name="teamname" id="makeTeam-name" required>
+                <br>
+                <button type="submit">Make team</button>
+            </form>
 
-        <h4>Make a team</h4>
-        <form id="makeTeamForm">
-            <label for="teamname">Team name</label>
-            <input type="text" name="teamname" id="makeTeam-name" required>
-            <br>
-            <button type="submit">Make team</button>
-        </form>
+            <h4>Join a team</h4>
+            <form id="joinTeamForm">
+                <label for="teamname">Team name</label>
+                <input type="text" name="teamname" id="joinTeam-name" required>
+                <br>
+                <label for="teampin">Pin</label>
+                <input type="text" name="teampin" id="joinTeam-pin" pattern="[0-9]*" inputmode="numeric" maxlength="4"
+                    placeholder="0000" required>
+                <br>
+                <button type="submit">Join team</button>
+            </form>
 
-        <h4>Join a team</h4>
-        <form id="joinTeamForm">
-            <label for="teamname">Team name</label>
-            <input type="text" name="teamname" id="joinTeam-name" required>
-            <br>
-            <label for="teampin">Pin</label>
-            <input type="text" name="teampin" id="joinTeam-pin" pattern="[0-9]*" inputmode="numeric" maxlength="4"
-                placeholder="0000" required>
-            <br>
-            <button type="submit">Join team</button>
-        </form>
+        </div>
+        <div id="goTeam" style="display: none;">
+            <h4><a href="game.html">Go to team</a></h4>
+        </div>
 
         <h4><a href="guide.html">Game guide</a></h4>
-        <h4><a href="game.html">Go to team</a></h4>
 
         <hr>
     </div>

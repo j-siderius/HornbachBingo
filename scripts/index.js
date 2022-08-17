@@ -16,6 +16,17 @@ coll.addEventListener("click", function () {
     }
 });
 
+// display correct menu items by checking for a session cookie
+if (document.cookie.includes("sessionID=")) {
+    // display team page link
+    document.getElementById('makeJoinTeam').style.display = "none";
+    document.getElementById('goTeam').style.display = "block";
+} else {
+    // display making and joining a team
+    document.getElementById('makeJoinTeam').style.display = "block";
+    document.getElementById('goTeam').style.display = "none";
+}
+
 // add the year to the footer
 document.getElementById("footerYear").innerHTML = new Date().getFullYear();
 
@@ -134,6 +145,9 @@ async function createTeam(event) {
 
     // clear the form
     document.getElementById('makeTeam-name').value = "";
+
+    // reload the page
+    location.reload();
 }
 
 async function joinTeam(event) {
@@ -161,4 +175,7 @@ async function joinTeam(event) {
     // clear the form
     document.getElementById('joinTeam-name').value = "";
     document.getElementById('joinTeam-pin').value = "";
+
+    // reload the page
+    location.reload();
 }
