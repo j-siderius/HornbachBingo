@@ -46,8 +46,8 @@ async function getSession() {
     setInterval(updateTime, 1000);
 
     // get the hinted and found products
-    let hintedProducts = data.sessionHints;
-    let foundProducts = data.sessionFoundProducts;
+    let hintedProducts = data.sessionHints + "";
+    let foundProducts = data.sessionFoundProducts + "";
 
     // get the bingo board
     let table = document.getElementById('bingoTable');
