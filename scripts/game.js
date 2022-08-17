@@ -5,7 +5,7 @@ getSession();
 document.getElementById('homeButton').addEventListener('click', () => {
     window.location.href = "index.html";
 })
-document.getElementById('hintButton').addEventListener('click', getProductHint);
+document.getElementById('hintButton').addEventListener('click', checkHint);
 document.getElementById('checkProductForm').addEventListener('submit', checkProduct);
 
 async function getSession() {
@@ -45,6 +45,10 @@ async function getSession() {
     // enable timer countdown
     setInterval(updateTime, 1000);
 
+    // get the hinted and found products
+    let hintedProducts = data.sessionHints;
+    let foundProducts = data.sessionFoundProducts;
+
     // get the bingo board
     let table = document.getElementById('bingoTable');
 
@@ -63,13 +67,43 @@ async function getSession() {
             cell.setAttribute('productId', product.productID);
             cell.setAttribute('productName', product.productName);
             cell.innerHTML = "<img src='" + product.productPicture + "'>";
-            cell.onclick = () => {
-                document.getElementById('productName').innerHTML = product.productName;
-                document.getElementById('productImage').src = product.productPicture;
-                document.getElementById('checkProduct-id').value = product.productID;
-                document.getElementById('hintButton').setAttribute('productId', product.productID);
-                document.getElementById('productHint').style.display = "none";
-                showModal(true);
+
+            // check if product is already found (don't bind an eventlistener otherwise)
+            if (foundProducts.includes(product.productID)) {
+                cell.setAttribute('found', true);
+                continue;
+            } else {
+
+                // register the callback when cell is clicked (if product is not found yet)
+                cell.onclick = async () => {
+                    // check if product is already found (no action needed)
+                    if (cell.getAttribute('found')) {
+                        return false;
+                    }
+
+                    document.getElementById('productName').innerHTML = product.productName;
+                    document.getElementById('productImage').src = product.productPicture;
+                    document.getElementById('checkProduct-id').value = product.productID;
+                    document.getElementById('hintButton').setAttribute('productId', product.productID);
+                    document.getElementById('productHint').style.display = "none";
+
+                    // change the modal to display the hinted location
+                    if (cell.getAttribute('hinted')) {
+                        let location = await getProductLocation();
+                        document.getElementById('productLocation').innerHTML = location;
+                        document.getElementById('productHint').style.display = "block";
+                    } else {
+                        document.getElementById('productHint').style.display = "none";
+                    }
+
+                    showModal(true);
+                }
+
+                // check if product is already hinted
+                if (hintedProducts.includes(product.productID)) {
+                    cell.setAttribute('hinted', true);
+                }
+
             }
         }
     }
@@ -105,10 +139,16 @@ async function checkProduct(event) {
     document.querySelector('[productid="' + productId + '"]').setAttribute('found', true);
 }
 
-async function getProductHint(event) {
+async function checkHint(event) {
     // prevent submitting and redirecting page
     event.preventDefault();
 
+    let location = await getProductLocation();
+    document.getElementById('productLocation').innerHTML = location;
+    document.getElementById('productHint').style.display = "block";
+}
+
+async function getProductLocation() {
     // call the api
     let productId = document.getElementById('hintButton').getAttribute('productId');
     let api_url = 'api/product.php?hintproduct=' + productId;
@@ -128,12 +168,11 @@ async function getProductHint(event) {
 
     // get the product location
     let location = data.productLocation;
-    document.getElementById('productLocation').innerHTML = location;
-    document.getElementById('productHint').style.display = "block";
 
     // update the cell attributes to show that the product has been hinted
     document.querySelector('[productid="' + productId + '"]').setAttribute('hinted', true);
 
+    return location;
 }
 
 function updateTime() {
