@@ -6,19 +6,21 @@ setInterval(updateLeaderboard, 1000);
 setInterval(fillLeaderboard, 15000);
 
 // add the collapsing behaviour to the menu
-let coll = document.getElementById('collapsible');
-coll.addEventListener("click", function () {
-    let content = document.getElementById('collapsible-content');
-    if (content.style.display === "none") {
-        content.style.display = "block";
+let collButton = document.getElementById('collapsible');    
+let collContent = document.getElementById('collapsible-content');
+
+collButton.addEventListener("click", function () {
+    if (collContent.style.display === "none") {
+        collContent.style.display = "block";
     } else {
-        content.style.display = "none";
+        collContent.style.display = "none";
     }
 });
 
 // display correct menu items by checking for a session cookie
 if (document.cookie.includes("sessionID=")) {
     // display team page link
+    collContent.style.display = "block";
     document.getElementById('makeJoinTeam').style.display = "none";
     document.getElementById('goTeam').style.display = "block";
 } else {
