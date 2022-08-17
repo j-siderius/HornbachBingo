@@ -68,43 +68,45 @@ async function getSession() {
             cell.setAttribute('productName', product.productName);
             cell.innerHTML = "<img src='" + product.productPicture + "'>";
 
-            // check if product is already found (don't bind an eventlistener otherwise)
+            // register the callback when cell is clicked (if product is not found yet)
+            cell.onclick = async () => {
+                // check if product is already found (no action needed)
+                if (cell.getAttribute('found')) {
+                    showModal(false);
+                    return false;
+                }
+
+                // fill the modal with product information
+                document.getElementById('productName').innerHTML = product.productName;
+                document.getElementById('productImage').src = product.productPicture;
+                document.getElementById('checkProduct-id').value = product.productID;
+                document.getElementById('hintButton').setAttribute('productId', product.productID);
+                document.getElementById('productHint').style.display = "none";
+
+                // change the modal to display the hinted location
+                if (cell.getAttribute('hinted')) {
+                    let location = await getProductLocation();
+                    document.getElementById('productLocation').innerHTML = location;
+                    document.getElementById('productHint').style.display = "block";
+                    document.getElementById('hintButton').style.display = "none";
+                } else {
+                    document.getElementById('productHint').style.display = "none";
+                    document.getElementById('hintButton').style.display = "block";
+                }
+
+                showModal(true);
+            }
+
+            // check if product is already hinted
+            if (hintedProducts.includes(product.productID)) {
+                cell.setAttribute('hinted', true);
+            }
+
+            // check if the product is already found
             if (foundProducts.includes(product.productID)) {
                 cell.setAttribute('found', true);
-                continue;
-            } else {
-
-                // register the callback when cell is clicked (if product is not found yet)
-                cell.onclick = async () => {
-                    // check if product is already found (no action needed)
-                    if (cell.getAttribute('found')) {
-                        return false;
-                    }
-
-                    document.getElementById('productName').innerHTML = product.productName;
-                    document.getElementById('productImage').src = product.productPicture;
-                    document.getElementById('checkProduct-id').value = product.productID;
-                    document.getElementById('hintButton').setAttribute('productId', product.productID);
-                    document.getElementById('productHint').style.display = "none";
-
-                    // change the modal to display the hinted location
-                    if (cell.getAttribute('hinted')) {
-                        let location = await getProductLocation();
-                        document.getElementById('productLocation').innerHTML = location;
-                        document.getElementById('productHint').style.display = "block";
-                    } else {
-                        document.getElementById('productHint').style.display = "none";
-                    }
-
-                    showModal(true);
-                }
-
-                // check if product is already hinted
-                if (hintedProducts.includes(product.productID)) {
-                    cell.setAttribute('hinted', true);
-                }
-
             }
+
         }
     }
 }
@@ -146,6 +148,7 @@ async function checkHint(event) {
     let location = await getProductLocation();
     document.getElementById('productLocation').innerHTML = location;
     document.getElementById('productHint').style.display = "block";
+    document.getElementById('hintButton').style.display = "none";
 }
 
 async function getProductLocation() {
