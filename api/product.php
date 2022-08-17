@@ -19,26 +19,56 @@ function getProduct()
 {
     $id = htmlspecialchars($_GET['id']);
 
-    try {
-        global $conn;
-        $query = $conn->prepare("SELECT `id`, `product_name`, `product_image` FROM `products` WHERE id=:id");
-        $query->execute([
-            'id' => $id
-        ]);
-        $response = $query->fetch(PDO::FETCH_ASSOC);
+    // extract multiple ids if we have them
+    $ids = explode(",", $id);
 
-        $json = array(
-            "productID" => $response['id'],
-            "productName" => $response['product_name'],
-            "productPicture" => $response['product_image']
-        );
-        header('Content-Type: application/json');
-        echo json_encode($json);
-        exit();
-    } catch (Exception $e) {
-        sendErrorMessage(400, "No valid productID");
-        exit();
+    // get the db object
+    global $conn;
+    $products = array();
+
+    // go through all ids and fetch their info
+    foreach ($ids as $id) {
+
+        try {
+            // fetch the information associated to the productID
+            $query = $conn->prepare("SELECT `id`, `product_name`, `product_image` FROM `products` WHERE id=:id");
+            $query->execute([
+                'id' => $id
+            ]);
+
+            // check if product exists
+            if ($query->rowCount() > 0) {
+                $response = $query->fetch(PDO::FETCH_ASSOC);
+
+                // make an array with product information
+                $product = array(
+                    "productID" => $response['id'],
+                    "productName" => $response['product_name'],
+                    "productPicture" => $response['product_image']
+                );
+                array_push($products, $product);
+            } else {
+                // if an error occurs, push an empty product
+                $noProduct = array(
+                    "productID" => $id,
+                    "error" => "Product not found"
+                );
+                array_push($products, $noProduct);
+            }
+        } catch (Exception $e) {
+            // if an error occurs, push an empty product
+            $noProduct = array(
+                "productID" => $id,
+                "error" => "Database error"
+            );
+            array_push($products, $noProduct);
+        }
     }
+
+    // respond with the products in json
+    header('Content-Type: application/json');
+    echo json_encode($products);
+    exit();
 }
 
 function checkProduct()
