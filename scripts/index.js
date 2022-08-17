@@ -20,8 +20,8 @@ coll.addEventListener("click", function () {
 document.getElementById("footerYear").innerHTML = new Date().getFullYear();
 
 // add the form event listeners
-document.getElementById('makeTeamForm').addEventListener('submit', createTeam)
-document.getElementById('joinTeamForm').addEventListener('submit', joinTeam)
+document.getElementById('makeTeamForm').addEventListener('submit', createTeam);
+document.getElementById('joinTeamForm').addEventListener('submit', joinTeam);
 
 // ---------------------------------------------------- \\
 
